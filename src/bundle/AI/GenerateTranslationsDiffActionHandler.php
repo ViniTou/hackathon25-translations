@@ -66,7 +66,6 @@ final class GenerateTranslationsDiffActionHandler extends AbstractActionHandler
 
         $this->validateResponse($json);
 
-        var_dump($json);
         $decoded = json_decode($json, true);
 
         // @todo introduce proper response object
