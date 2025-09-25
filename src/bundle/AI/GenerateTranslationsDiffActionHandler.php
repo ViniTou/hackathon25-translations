@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Ibexa\Bundle\HackathonTranslations\AI;
 
 use Ibexa\ConnectorOpenAi\ActionHandler\AbstractActionHandler;
+use Ibexa\Contracts\ConnectorAi\Action\DataType\Text;
+use Ibexa\Contracts\ConnectorAi\Action\Response\TextResponse;
 use Ibexa\Contracts\ConnectorAi\ActionInterface;
 use Ibexa\Contracts\ConnectorAi\ActionResponseInterface;
 use Ibexa\Contracts\ConnectorAi\ActionType\ActionTypeRegistryInterface;
@@ -63,20 +65,11 @@ final class GenerateTranslationsDiffActionHandler extends AbstractActionHandler
 
         $this->validateResponse($json);
 
-        $text = $this->formatter->format($json);
-//        if (empty($text)) {
-//            return new GeneratePageBuilderBlockActionResponse(new BlockGeneratorOutputData());
-//        }
+        var_dump($json);
+        $decoded = json_decode($json, true);
 
-        $decoded = json_decode($text[0], true);
-
-//        return new GeneratePageBuilderBlockActionResponse(
-//            new BlockGeneratorOutputData(
-//                $decoded['block_identifier'] ?? '',
-//                $decoded['yaml_configuration'] ?? '',
-//                $decoded['twig_template'] ?? '',
-//            )
-//        );
+        // @todo introduce proper response object
+        return new TextResponse(new Text([$json]));
     }
 
     public static function getIdentifier(): string

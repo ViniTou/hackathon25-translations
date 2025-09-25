@@ -10,6 +10,7 @@ use Ibexa\Contracts\Core\Repository\Repository;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
@@ -27,13 +28,39 @@ final class GenerateTranslationDiffCommand extends Command
 
     public function configure(): void
     {
-        $this->addOption(
-            'user',
-            'u',
-            InputOption::VALUE_REQUIRED,
-            'Ibexa DXP username',
-            'admin'
-        );
+        $this
+            ->addOption(
+                'user',
+                'u',
+                InputOption::VALUE_REQUIRED,
+                'Ibexa DXP username',
+                'admin'
+            )
+            ->addArgument(
+                'content-id',
+                InputArgument::OPTIONAL,
+                'Content ID to compare'
+            )
+            ->addArgument(
+                'version-a',
+                InputArgument::OPTIONAL,
+                'Version number A'
+            )
+            ->addArgument(
+                'language-a',
+                InputArgument::OPTIONAL,
+                'Language code for version A'
+            )
+            ->addArgument(
+                'version-b',
+                InputArgument::OPTIONAL,
+                'Version number B'
+            )
+            ->addArgument(
+                'language-b',
+                InputArgument::OPTIONAL,
+                'Language code for version B'
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -44,11 +71,35 @@ final class GenerateTranslationDiffCommand extends Command
 
         $io = new SymfonyStyle($input, $output);
 
-        $contentId = $io->askQuestion(new Question('ContentID'));
-        $versionNoA = $io->askQuestion(new Question('VersionNo A'));
-        $versionLanguageA = $io->askQuestion(new Question('VersionLanguage A'));
-        $versionNoB = $io->askQuestion(new Question('VersionNo B'));
-        $versionLanguageB = $io->askQuestion(new Question('VersionLanguage B'));
+        $contentId = $input->getArgument('content-id');
+        if ($contentId === null) {
+            $contentId = (int)$io->askQuestion(new Question('ContentID'));
+        }
+
+        $versionNoA = $input->getArgument('version-a');
+        if ($versionNoA === null) {
+            $versionNoA = (int)$io->askQuestion(new Question('VersionNo A'));
+        }
+
+        $versionLanguageA = $input->getArgument('language-a');
+        if ($versionLanguageA === null) {
+            $versionLanguageA = $io->askQuestion(new Question('VersionLanguage A'));
+        }
+
+        $versionNoB = $input->getArgument('version-b');
+        if ($versionNoB === null) {
+            $versionNoB = (int)$io->askQuestion(new Question('VersionNo B'));
+        }
+
+        $versionLanguageB = $input->getArgument('language-b');
+        if ($versionLanguageB === null) {
+            $versionLanguageB = $io->askQuestion(new Question('VersionLanguage B'));
+        }
+
+        // Convert to proper types
+        $contentId = (int)$contentId;
+        $versionNoA = (int)$versionNoA;
+        $versionNoB = (int)$versionNoB;
 
         $versionInfoA = $this->repository->getContentService()->loadVersionInfoById(
             $contentId,
@@ -71,6 +122,7 @@ final class GenerateTranslationDiffCommand extends Command
 
         $result = $this->actionService->execute($action)->getOutput();
 
+        var_dump($result->getText());
 
         return self::SUCCESS;
     }
