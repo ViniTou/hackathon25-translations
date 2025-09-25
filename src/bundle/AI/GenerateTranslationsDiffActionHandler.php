@@ -13,6 +13,7 @@ use Ibexa\Contracts\ConnectorAi\ActionType\ActionTypeRegistryInterface;
 use Ibexa\Contracts\ConnectorOpenAi\ClientProviderInterface;
 use Ibexa\Contracts\Core\Repository\LanguageResolver;
 use Ibexa\Contracts\Core\Repository\LanguageService;
+use Ibexa\Contracts\Core\Repository\Values\Content\Field;
 
 final class GenerateTranslationsDiffActionHandler extends AbstractActionHandler
 {
@@ -51,8 +52,8 @@ final class GenerateTranslationsDiffActionHandler extends AbstractActionHandler
                                 [
                                     '%languageA%' => $action->getLanguageA(),
                                     '%languageB%' => $action->getLanguageB(),
-                                    '%fieldsA%' => json_encode($action->getFieldsA(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
-                                    '%fieldsB%' => json_encode($action->getFieldsB(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
+                                    '%fieldsA%' => json_encode($this->prepareFields($action->getFieldsA()), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
+                                    '%fieldsB%' => json_encode($this->prepareFields($action->getFieldsB()), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
                                 ]
                             ),
                         ],
@@ -80,5 +81,18 @@ final class GenerateTranslationsDiffActionHandler extends AbstractActionHandler
     public function getSystemPrompt(): string
     {
         return file_get_contents(__DIR__ . '/../../../prompt_system_instruction.md');
+    }
+
+    /**
+     * @param Field[] $getFieldsB
+     * @return array<string, string>
+     */
+    private function prepareFields(array $fields): array
+    {
+        $result = [];
+        foreach ($fields as $field) {
+            $result[$field->fieldDefIdentifier] = $field->value;
+        }
+        return $result;
     }
 }
