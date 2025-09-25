@@ -86,6 +86,6 @@ final class GenerateTranslationsDiffActionHandler extends AbstractActionHandler
 
     public function getSystemPrompt(): string
     {
-        return file_get_contents(__DIR__ . '/../../prompt/generate_page_builder_block.md');
+        return file_get_contents(__DIR__ . '/../../../prompt_system_instruction.md');
     }
 }
