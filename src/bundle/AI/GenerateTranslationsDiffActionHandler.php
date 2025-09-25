@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Ibexa\Bundle\HackathonTranslations\AI;
 
 use Ibexa\ConnectorOpenAi\ActionHandler\AbstractActionHandler;
-use Ibexa\ConnectorOpenAi\ActionHandler\ChatActionResponseFormatter;
 use Ibexa\Contracts\ConnectorAi\ActionInterface;
 use Ibexa\Contracts\ConnectorAi\ActionResponseInterface;
 use Ibexa\Contracts\ConnectorAi\ActionType\ActionTypeRegistryInterface;
