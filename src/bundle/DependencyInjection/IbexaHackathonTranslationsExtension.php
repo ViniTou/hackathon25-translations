@@ -21,3 +21,4 @@ class IbexaHackathonTranslationsExtension extends Extension
         $loader->load('services.yaml');
     }
 }
+

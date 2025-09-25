@@ -1,0 +1,3 @@
+ibexa_hackathon_translations:
+    resource: '../../../Controller/'
+    type: attribute
