@@ -6,7 +6,7 @@
  */
 declare(strict_types=1);
 
-namespace Ibexa\Bundle\ConnectorAi\DependencyInjection;
+namespace Ibexa\Bundle\HackathonTranslations\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Resource\FileResource;
