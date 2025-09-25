@@ -46,8 +46,12 @@ final class GenerateTranslationsDiffActionHandler extends AbstractActionHandler
                         [
                             'type' => 'text',
                             'text' => strtr(
-                                'Generate Translations diff and suggestions for specified versions and languages ',
+                                'Version A (%languageA%):\n\n%fieldsA%\n\nVersion B (%languageB%):\n\n%fieldsB%\n\n',
                                 [
+                                    '%languageA%' => $action->getLanguageA(),
+                                    '%languageB%' => $action->getLanguageB(),
+                                    '%fieldsA%' => json_encode($action->getFieldsA(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
+                                    '%fieldsB%' => json_encode($action->getFieldsB(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
                                 ]
                             ),
                         ],

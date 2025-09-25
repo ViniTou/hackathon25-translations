@@ -42,4 +42,26 @@ final class GenerateTranslationsDiffAction extends BaseAction
         );
     }
 
+    public function getFieldsA(): array
+    {
+        return $this->fieldsA;
+    }
+
+    public function getFieldsB(): array
+    {
+        return $this->fieldsB;
+    }
+
+    public function getLanguageA(): string
+    {
+        return $this->languageA;
+    }
+
+    public function getLanguageB(): string
+    {
+        return $this->languageB;
+    }
+
+
+
 }
