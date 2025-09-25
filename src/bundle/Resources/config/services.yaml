@@ -17,3 +17,12 @@ services:
         autowire: true
         autoconfigure: true
         tags: ['controller.service_arguments']
+
+    Ibexa\Bundle\HackathonTranslations\AI\GenerateTranslationsDiffActionHandler:
+        tags:
+            - { name: ibexa.ai.action.handler, priority: 100 }
+            - { name: ibexa.ai.action.handler.generate_translations_diff, priority: 100 }
+        calls:
+            - setDefaultMaxTokens: [ '%ibexa.connector_openai.text_to_text.default_max_tokens%' ]
+            - setDefaultTemperature: [ '%ibexa.connector_openai.text_to_text.default_temperature%' ]
+            - setDefaultModel: [ '%ibexa.connector_openai.text_to_text.default_model%' ]
