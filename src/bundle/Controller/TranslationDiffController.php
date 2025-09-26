@@ -43,8 +43,8 @@ class TranslationDiffController extends AbstractController
             $contentB = $this->repository->getContentService()->loadContentByVersionInfo($versionInfoB, [$languageB]);
 
             $action = new GenerateTranslationsDiffAction(
-                $contentA->getFields(),
-                $contentB->getFields(),
+                $contentA->getFieldsByLanguage($languageA),
+                $contentB->getFieldsByLanguage($languageB),
                 $languageA,
                 $languageB
             );

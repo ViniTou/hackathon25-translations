@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ibexa\Bundle\HackathonTranslations\AI;
 
+use DOMDocument;
 use Ibexa\ConnectorOpenAi\ActionHandler\AbstractActionHandler;
 use Ibexa\Contracts\ConnectorAi\Action\DataType\Text;
 use Ibexa\Contracts\ConnectorAi\Action\Response\TextResponse;
@@ -83,15 +84,22 @@ final class GenerateTranslationsDiffActionHandler extends AbstractActionHandler
     }
 
     /**
-     * @param Field[] $getFieldsB
+     * @param Field[] $fields
      * @return array<string, string>
      */
     private function prepareFields(array $fields): array
     {
         $result = [];
         foreach ($fields as $field) {
-            $result[$field->fieldDefIdentifier] = $field->value;
+            $value = $field->getValue();
+            if ($value instanceof \Ibexa\FieldTypeRichText\FieldType\RichText\Value) {
+                $xmlString = $value->xml->saveXML();
+                $result[$field->fieldDefIdentifier] = $xmlString;
+            } else {
+                $result[$field->fieldDefIdentifier] = $value;
+            }
         }
+
         return $result;
     }
 }
