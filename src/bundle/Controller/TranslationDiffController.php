@@ -21,7 +21,7 @@ class TranslationDiffController extends AbstractController
     ) {
     }
 
-    #[Route('/api/translations/diff/{contentId}/{versionA}/{languageA}/{versionB}/{languageB}', name: 'ibexa.translations.diff', methods: ['GET'])]
+    #[Route('/api/translations/diff/{contentId}/{versionA}/{languageA}/{versionB}/{languageB}', name: 'ibexa.translations.diff', methods: ['GET', 'POST'])]
     public function getDiff(
         int $contentId,
         int $versionA,
