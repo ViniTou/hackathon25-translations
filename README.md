@@ -10,5 +10,5 @@ Arguments by order:
 
 REST ENDPOINT
 
-GET https://50.ddev.site/api/translations/diff/84/5/fre-fR/5/eng-GB
+GET https://50.ddev.site/api/translations/diff/84/5/fre-FR/5/eng-GB
 Accept: application/json
