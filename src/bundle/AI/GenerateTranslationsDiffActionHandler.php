@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Ibexa\Bundle\HackathonTranslations\AI;
 
-use DOMDocument;
+use Ibexa\Bundle\HackathonTranslations\AI\DataType\TranslationDiffOutputData;
 use Ibexa\ConnectorOpenAi\ActionHandler\AbstractActionHandler;
-use Ibexa\Contracts\ConnectorAi\Action\DataType\Text;
-use Ibexa\Contracts\ConnectorAi\Action\Response\TextResponse;
+use Ibexa\ConnectorOpenAi\ActionHandler\ChatActionResponseFormatter;
 use Ibexa\Contracts\ConnectorAi\ActionInterface;
 use Ibexa\Contracts\ConnectorAi\ActionResponseInterface;
 use Ibexa\Contracts\ConnectorAi\ActionType\ActionTypeRegistryInterface;
@@ -18,13 +17,17 @@ use Ibexa\Contracts\Core\Repository\Values\Content\Field;
 
 final class GenerateTranslationsDiffActionHandler extends AbstractActionHandler
 {
+    private ChatActionResponseFormatter $formatter;
+
     public function __construct(
         ClientProviderInterface $clientProvider,
         ActionTypeRegistryInterface $actionTypeRegistry,
         LanguageService $languageService,
-        LanguageResolver $languageResolver
+        LanguageResolver $languageResolver,
+        ChatActionResponseFormatter $formatter,
     ) {
         parent::__construct($clientProvider, $actionTypeRegistry, $languageService, $languageResolver);
+        $this->formatter = $formatter;
     }
 
     public function supports(ActionInterface $action): bool
@@ -53,13 +56,45 @@ final class GenerateTranslationsDiffActionHandler extends AbstractActionHandler
                                 [
                                     '%languageA%' => $action->getLanguageA(),
                                     '%languageB%' => $action->getLanguageB(),
-                                    '%fieldsA%' => json_encode($this->prepareFields($action->getFieldsA()), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
-                                    '%fieldsB%' => json_encode($this->prepareFields($action->getFieldsB()), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE),
+                                    '%fieldsA%' => json_encode($this->prepareFields($action->getFieldsA())),
+                                    '%fieldsB%' => json_encode($this->prepareFields($action->getFieldsB())),
                                 ]
                             ),
                         ],
                     ],
                 ],
+            ],
+            'response_format' => [
+                'type' => 'json_schema',
+                'json_schema' => [
+                    'name' => 'validation_results',
+                    'schema' => [
+                        'type' => 'object',
+                        'properties' => [
+                            'issues' => [
+                                'type' => 'array',
+                                'items' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'id' => ['type' => 'string'],
+                                        'type' => ['type' => 'string'],
+                                        'field' => ['type' => 'string'],
+                                        'severity' => ['type' => 'string'],
+                                        'title' => ['type' => 'string'],
+                                        'description' => ['type' => 'string'],
+                                        'suggestion' => ['type' => 'string'],
+                                        'impact' => ['type' => 'string'],
+                                    ],
+                                    'required' => [
+                                        'id','type','field','severity',
+                                        'title','description','suggestion','impact'
+                                    ]
+                                ]
+                            ]
+                        ],
+                        'required' => ['results']
+                    ]
+                ]
             ],
             'max_completion_tokens' => $options['max_tokens'],
             'temperature' => $options['temperature'],
@@ -67,10 +102,14 @@ final class GenerateTranslationsDiffActionHandler extends AbstractActionHandler
 
         $this->validateResponse($json);
 
-        $decoded = json_decode($json, true);
+        $text = $this->formatter->format($json);
+        if (empty($text)) {
+            return new GenerateTranslationDiffActionResponse(new TranslationDiffOutputData([]));
+        }
 
-        // @todo introduce proper response object
-        return new TextResponse(new Text([$json]));
+        $decoded = json_decode($text[0], true);
+
+        return new GenerateTranslationDiffActionResponse(new TranslationDiffOutputData([$decoded]));
     }
 
     public static function getIdentifier(): string
@@ -92,12 +131,7 @@ final class GenerateTranslationsDiffActionHandler extends AbstractActionHandler
         $result = [];
         foreach ($fields as $field) {
             $value = $field->getValue();
-            if ($value instanceof \Ibexa\FieldTypeRichText\FieldType\RichText\Value) {
-                $xmlString = $value->xml->saveXML();
-                $result[$field->fieldDefIdentifier] = $xmlString;
-            } else {
-                $result[$field->fieldDefIdentifier] = $value;
-            }
+            $result[$field->fieldDefIdentifier] = (string)$value;
         }
 
         return $result;

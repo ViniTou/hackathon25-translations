@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Ibexa\Bundle\HackathonTranslations\Controller;
 
+use Ibexa\Bundle\HackathonTranslations\AI\DataType\TranslationDiffOutputData;
+use Ibexa\Bundle\HackathonTranslations\AI\GenerateTranslationDiffActionResponse;
 use Ibexa\Bundle\HackathonTranslations\AI\GenerateTranslationsDiffAction;
 use Ibexa\Contracts\ConnectorAi\ActionServiceInterface;
 use Ibexa\Contracts\Core\Repository\Repository;
@@ -43,16 +45,17 @@ class TranslationDiffController extends AbstractController
             $contentB = $this->repository->getContentService()->loadContentByVersionInfo($versionInfoB, [$languageB]);
 
             $action = new GenerateTranslationsDiffAction(
-                $contentA->getFieldsByLanguage($languageA),
-                $contentB->getFieldsByLanguage($languageB),
+                $contentA->getFields(),
+                $contentB->getFields(),
                 $languageA,
                 $languageB
             );
 
+            /** @var TranslationDiffOutputData $result */
             $result = $this->actionService->execute($action)->getOutput();
 
             return new JsonResponse([
-                'diff' => json_decode($result->getText()),
+                'diff' => $result->getList(),
                 'content_id' => $contentId,
                 'version_a' => [
                     'number' => $versionA,
